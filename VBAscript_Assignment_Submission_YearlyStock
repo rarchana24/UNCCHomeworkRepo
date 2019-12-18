@@ -1,0 +1,173 @@
+Sub homeworkLoop_Stock()
+Dim sheet As Worksheet
+For Each sheet In Worksheets
+ 'Setting the header False for current worksheet
+
+'Setting variables
+
+Dim ticker As String
+ticker = ""
+Dim tickervolume As Double
+tickervolume = 0
+
+Dim openvalue As Double
+openvalue = 0
+
+Dim closevalue As Double
+closevalue = 0
+
+Dim valuechange As Double
+valuechange = 0
+
+Dim valuepercentage As Double
+valuepercentage = 0
+
+'to generate greatervalue and greaterpercentage
+
+Dim maxticker As String
+maxticker = " "
+
+Dim minticker As String
+minticker = " "
+
+Dim maxpercent As Double
+maxpercent = 0
+
+Dim minpercent As Double
+minpercent = 0
+
+Dim maxtickervolume As String
+maxtickervolume = " "
+
+Dim maxtotalvolume As Double
+maxtotalvolume = 0
+
+
+'Set variables to get values
+
+Dim tablerow As Long
+tablerow = 2
+
+Dim lastrow As Long
+Dim i As Long
+
+lastrow = sheet.Cells(Rows.Count, 1).End(xlUp).Row
+
+
+sheet.Range("I1").Value = "Ticker"
+sheet.Range("J1").Value = "YearlyChange"
+sheet.Range("K1").Value = "YearlyPercentage"
+sheet.Range("L1").Value = "TotalVolume"
+
+'Max value population
+sheet.Range("O2").Value = "Greatest % increase"
+sheet.Range("O3").Value = "Greatest % Decrease"
+sheet.Range("O4").Value = "Greatest total volume"
+sheet.Range("P1").Value = "ticker"
+sheet.Range("Q1").Value = "value"
+
+
+
+'Calculation
+
+openvalue = sheet.Cells(2, 3).Value
+
+'Looping from row to lastrow
+
+For i = 2 To lastrow
+
+If sheet.Cells(i + 1, 1).Value <> sheet.Cells(i, 1).Value Then
+
+'Populate values
+
+ticker = sheet.Cells(i, 1).Value
+closevalue = sheet.Cells(i, 6).Value
+
+valuechange = closevalue - openvalue
+
+'Check if it is divisible by 0
+
+If openvalue <> 0 Then
+
+valuepercentage = (valuechange / openvalue) * 100
+
+Else
+
+valuepercentage = 0
+
+End If
+
+tickervolume = tickervolume + sheet.Cells(i, 7).Value
+
+sheet.Range("I" & tablerow).Value = ticker
+sheet.Range("J" & tablerow).Value = valuechange
+
+'Fill with color
+
+If (valuechange > 0) Then
+
+'Fill with green
+
+sheet.Range("J" & tablerow).Interior.ColorIndex = 4
+
+Else
+
+'Fill with red
+
+sheet.Range("J" & tablerow).Interior.ColorIndex = 3
+End If
+
+
+sheet.Range("K" & tablerow).Value = (Str(valuepercentage) & "%")
+
+sheet.Range("L" & tablerow).Value = tickervolume
+
+'Add 1 to table row
+
+tablerow = tablerow + 1
+openvalue = 0
+closevalue = 0
+
+openvalue = sheet.Cells(i + 1, 3).Value
+
+'Calculating greaterValue
+
+If (valuepercentage > maxpercent) Then
+maxpercent = valuepercentage
+maxticker = ticker
+
+Else
+minpercent = valuepercentage
+minticker = ticker
+
+End If
+
+If (tickervolume > maxtotalvolume) Then
+
+maxtotalvolume = tickervolume
+maxticker = ticker
+
+End If
+
+valuepercentage = 0
+tickervolume = 0
+
+
+Else
+
+tickervolume = tickervolume + sheet.Cells(i, 7).Value
+
+End If
+
+Next i
+
+sheet.Range("Q2").Value = (Str(maxpercent) & "%")
+sheet.Range("Q3").Value = (Str(minpercent) & "%")
+sheet.Range("P2").Value = maxticker
+sheet.Range("P3").Value = minticker
+sheet.Range("Q4").Value = maxtotalvolume
+sheet.Range("P4").Value = maxtickervolume
+
+Next sheet
+
+End Sub
